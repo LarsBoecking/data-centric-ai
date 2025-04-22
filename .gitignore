@@ -1,0 +1,15 @@
+.venv/*
+/.venv/*
+./.venv/*
+
+112UCRFolds/*
+/112UCRFolds/*
+
+.DS_Store
+
+results/*
+/results/*
+./results/*
+
+*.pyc
+*.csv

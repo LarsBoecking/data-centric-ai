@@ -1,0 +1,8 @@
+
+tsml_eval
+pyYAML
+torch
+aeon
+numpy 
+pandas 
+scikit-learn

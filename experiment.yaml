@@ -1,0 +1,31 @@
+experiment:
+  - dataset: ["Beef", "GunPoint"]
+    classifier: ["mini-rocket", "catch22"]
+    random_seed: [0]
+    strategy:
+      - type: "length_reduction"
+        mode: "random"
+        params:
+          reduction_fraction: [0.1, 0.3]
+      - type: "number_instances"
+        mode: "random"
+        params:
+          reduction_ratio: [0.1, 0.3]
+      - type: "label_flipping"
+        mode: "random"
+        params:
+          flip_ratio: [0.0, 0.1]
+      - type: "baseline"
+        mode: null
+        params: {}
+
+  - dataset: "Yoga"
+    classifier: "hydra"
+    random_seed: [0]
+    strategy:
+      - type: "label_flipping"
+        mode: "systematic"
+        params:
+          confusion_matrix:
+            "0": {"0": 0.8, "1": 0.2}
+            "1": {"0": 0.1, "1": 0.9}

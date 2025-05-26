@@ -40,7 +40,7 @@ class Experiment:
                 & (summary_df["strategy_params"] == json.dumps(strategy_conf["params"]))
             )
             if match.any():
-                logger.info("Skipping already executed configuration.")
+                logger.info("Skipping already executed configuration. \n")
                 self.skip = True
                 return
 
@@ -101,5 +101,5 @@ class Experiment:
             df_summary.to_csv(SUMMARY_FILE, index=False)
 
         logger.info(
-            f"Experiment finished with accuracy: {accuracy:.4f}, f1_score: {f1:.4f}"
+            f"Experiment finished with accuracy: {accuracy:.4f}, f1_score: {f1:.4f} \n"
         )

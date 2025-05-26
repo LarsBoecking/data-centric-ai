@@ -2,14 +2,34 @@ import os
 import logging
 from itertools import product
 import yaml
+import urllib.request
+import zipfile
+
+RESULTS_DIR = "results"
+SUMMARY_FILE = os.path.join(RESULTS_DIR, "summary.csv")
+DATA_URL = "http://www.timeseriesclassification.com/aeon-toolkit/Archives/Univariate2018_ts.zip"
+DATA_ZIP = "Univariate2018_ts.zip"
+CONFIG_PATH = "experiment.yaml"
+DATASETS_PATH = "Univariate_ts"
+
+os.makedirs(RESULTS_DIR, exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
-RESULTS_DIR = "results"
-SUMMARY_FILE = os.path.join(RESULTS_DIR, "summary.csv")
+def ensure_datasets_exist():
+    if not os.path.exists(DATASETS_PATH):
+        logger.info(f"{DATASETS_PATH} not found. Downloading dataset...")
+        urllib.request.urlretrieve(DATA_URL, DATA_ZIP)
+        logger.info("Extracting dataset...")
+        with zipfile.ZipFile(DATA_ZIP, "r") as zip_ref:
+            zip_ref.extractall(".")
+        os.remove(DATA_ZIP)
+        logger.info("Dataset ready.")
+    else:
+        logger.info(f"{DATASETS_PATH} already exists. No need to download. \n")
 
 
 def load_and_expand_yaml(path: str):

@@ -16,7 +16,7 @@ experiment:
         params:
           flip_ratio: [0.0, 0.1]
       - type: "baseline"
-        mode: null
+        mode: "none"
         params: {}
 
   - dataset: "Yoga"

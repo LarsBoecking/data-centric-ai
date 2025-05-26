@@ -3,7 +3,6 @@ from tsml_eval.publications.y2023.tsc_bakeoff.set_bakeoff_classifier import (
 )
 from src.utils import logger
 
-### Classifier Wrapper ###
 class BakeoffClassifier:
     def __init__(self, name: str, random_state: int = 0):
         self.name = name

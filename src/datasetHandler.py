@@ -1,8 +1,6 @@
 from aeon.datasets import load_classification
 from src.utils import logger
 
-
-### Dataset Wrapper ###
 class UCRDataset:
     def __init__(self, name: str, path: str):
         self.name = name

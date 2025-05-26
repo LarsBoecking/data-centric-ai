@@ -11,7 +11,6 @@ from src.datasetHandler import UCRDataset
 from src.classifierHandler import BakeoffClassifier
 
 
-### Experiment ###
 class Experiment:
     def __init__(self, config: Dict[str, Any], base_path: str, results_root: str):
         self.config = config
@@ -30,16 +29,15 @@ class Experiment:
         self.classifier = BakeoffClassifier(clf_name, random_state=self.random_seed)
         self.strategy = DataCentricStrategy.from_config(strategy_conf)
 
-        # Check for duplicates
         if os.path.exists(SUMMARY_FILE):
             summary_df = pd.read_csv(SUMMARY_FILE)
             match = (
                 (summary_df["dataset"] == ds_name)
                 & (summary_df["classifier"] == clf_name)
+                & (summary_df["random_seed"] == self.random_seed)
                 & (summary_df["strategy"] == strategy_conf["type"])
                 & (summary_df["strategy_mode"] == strategy_conf.get("mode"))
                 & (summary_df["strategy_params"] == json.dumps(strategy_conf["params"]))
-                & (summary_df["random_seed"] == self.random_seed)
             )
             if match.any():
                 logger.info("Skipping already executed configuration.")

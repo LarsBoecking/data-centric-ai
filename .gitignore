@@ -1,15 +1,10 @@
 .venv/*
-/.venv/*
-./.venv/*
 
-112UCRFolds/*
-/112UCRFolds/*
+Univariate_ts/*
 
 .DS_Store
 
 results/*
-/results/*
-./results/*
 
 *.pyc
 *.csv

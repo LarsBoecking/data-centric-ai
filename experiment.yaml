@@ -7,6 +7,7 @@ experiment:
         mode: "random"
         params:
           reduction_fraction: [0.1, 0.3]
+          take_from_end: [false, true]
       - type: "number_instances"
         mode: "random"
         params:

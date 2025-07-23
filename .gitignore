@@ -10,3 +10,5 @@ results/*
 *.csv
 
 *.log
+
+*.pdf

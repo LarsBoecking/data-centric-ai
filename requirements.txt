@@ -1,10 +1,19 @@
 
-tsml_eval
+# data handling 
 pyYAML
-torch
-aeon
 numpy 
 pandas 
+tqdm
+
+# time series processing
+tsml_eval
+aeon
+
+# classification models
+torch
 scikit-learn
 
-tqdm
+# plotting and visualization
+matplotlib
+seaborn
+ipywidgets

@@ -72,8 +72,7 @@ Each experiment creates a timestamped folder in `results/` containing:
 - `preds.npy`: Model predictions (class labels)
 - `y_test.npy`: Ground truth test labels
 - `metrics.json`: Performance metrics (accuracy and F1 score)
-
-The `results/summary.csv` file provides a cumulative overview of all experiments.
+- The `results/summary.csv` file provides a cumulative overview of all experiments.
 
 ---
 

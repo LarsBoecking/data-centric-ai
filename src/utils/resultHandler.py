@@ -2,11 +2,14 @@ import os
 import json
 import numpy as np
 import pandas as pd
+from ..utils.logger import get_logger
 
 class ResultHandler:
     def __init__(self, summary_csv_path: str):
         self.summary_csv_path = summary_csv_path
         self.summary_df = pd.read_csv(summary_csv_path)
+        self.logger = get_logger(__name__)
+        self.logger.info(f"Initialized ResultHandler with summary_csv_path: {summary_csv_path}")
 
     def get_result_folders(self):
         return self.summary_df['folder'].tolist()

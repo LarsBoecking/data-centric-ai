@@ -4,11 +4,12 @@ from itertools import product
 import yaml
 import urllib.request
 import zipfile
+from ..utils.logger import get_logger
 
 
 class ConfigHandler:
     def __init__(self, paths_yaml_path="configs/paths.yaml"):
-        self.logger = self._setup_logger()
+        self.logger = get_logger(__name__)
         self.logger.info(f"Initializing ConfigHandler with paths_yaml_path: {paths_yaml_path}")
         
         try:
@@ -39,13 +40,6 @@ class ConfigHandler:
         self.logger.debug(f"Loaded configuration - RESULTS_DIR: {self.RESULTS_DIR}, "
                          f"DATASETS_PATH: {self.DATASETS_PATH}, CONFIG_PATH: {self.CONFIG_PATH}")
 
-    def _setup_logger(self):
-        """Setup logging configuration"""
-        logging.basicConfig(
-            level=logging.INFO, 
-            format="%(asctime)s - %(levelname)s - %(message)s"
-        )
-        return logging.getLogger(__name__)
 
     def ensure_datasets_exist(self):
         """Download and extract datasets if they don't exist"""

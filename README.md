@@ -1,6 +1,10 @@
 # Data-Centric AI for Time Series Classification
 
-This repository provides a flexible experimentation framework to evaluate **data-centric adaptation strategies** (like label flipping, instance reduction, and length reduction) on time series classification tasks.
+This repository provides a flexible experimentation framework to evaluate data-centric adaptation strategies on time series classification tasks. Building on the foundational concepts introduced by Jakubik et al. (2024)  in their seminal work on **Data-Centric Artificial Intelligence** *[1]*, we instantiate concrete realizations of data-centric approaches and empirically evaluate their potential for improving time series classification performance.
+
+While traditional model-centric AI focuses on optimizing algorithms, data-centric AI emphasizes the systematic improvement of data quality and characteristics. This framework implements and evaluates various data-centric strategies including label noise injection, instance reduction, temporal subsampling, and feature quality degradation to understand their impact on classification performance.
+
+*[1] Jakubik, J., Vössing, M., Kühl, N. et al. Data-Centric Artificial Intelligence. Bus Inf Syst Eng 66, 507–515 (2024). https://doi.org/10.1007/s12599-024-00857-8*
 
 ---
 ## 🚀 Getting Started
@@ -103,11 +107,11 @@ for folder, result in result_handler.iter_results():
 
 ### Data-Centric Adaptation Strategies
 
+- ✅ **BaselineStrategy**: No adaptation (control condition)
+  - Parameters: none
+  - 
 - ✅ **RandomLabelFlipping**: Randomly flip a percentage of training labels
   - Parameters: `flip_ratio` (0.0-1.0)
-  
-- ✅ **SystematicLabelFlipping**: Flip labels based on a confusion matrix
-  - Parameters: `confusion_matrix` (nested dict of transition probabilities)
   
 - ✅ **NumberInstanceStrategy**: Randomly reduce training instances
   - Parameters: `reduction_ratio` (0.0-1.0)
@@ -115,8 +119,8 @@ for folder, result in result_handler.iter_results():
 - ✅ **LengthReductionStrategy**: Truncate time series length
   - Parameters: `reduction_fraction` (0.0-1.0), `take_from_end` (bool)
   
-- ✅ **BaselineStrategy**: No adaptation (control condition)
-  - Parameters: none
+- ✅ **FeatureQualityStrategy**: Add Gaussian noise to simulate sensor measurement errors
+  - Parameters: `noise_level` (≥0.0), describing the standard deviation of noise added to each time step
 
 ### Classifiers
 The framework supports all classifiers from the time series classification bakeoff:

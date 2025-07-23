@@ -12,3 +12,5 @@ results/*
 *.log
 
 *.pdf
+
+concept/*

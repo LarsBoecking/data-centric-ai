@@ -1,7 +1,7 @@
 experiment:
-  - dataset: ["Beef", "GunPoint"]
+  - dataset: ["Beef", "GunPoint", "Yoga"]
     classifier: ["mini-rocket", "catch22"]
-    random_seed: [1]
+    random_seed: [0,1,2]
     strategy:
       - type: "length_reduction"
         mode: "random"
@@ -15,7 +15,7 @@ experiment:
       - type: "label_flipping"
         mode: "random"
         params:
-          flip_ratio: [0.0, 0.1]
+          flip_ratio: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
       - type: "baseline"
         mode: "none"
         params: {}

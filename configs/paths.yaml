@@ -1,0 +1,6 @@
+RESULTS_DIR: results
+SUMMARY_FILE: summary.csv
+DATA_URL: http://www.timeseriesclassification.com/aeon-toolkit/Archives/Univariate2018_ts.zip
+DATA_ZIP: Univariate2018_ts.zip
+CONFIG_PATH: experiment.yaml
+DATASETS_PATH: Univariate_ts

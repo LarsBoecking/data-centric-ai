@@ -2,31 +2,29 @@ experiment:
   - dataset: ["Beef", "GunPoint", "Yoga"]
     classifier: ["mini-rocket", "catch22"]
     random_seed: [0,1,2]
+
     strategy:
-      - type: "length_reduction"
-        mode: "random"
-        params:
-          reduction_fraction: [0.1, 0.2]
-          take_from_end: [false, true]
-      - type: "number_instances"
-        mode: "random"
-        params:
-          reduction_ratio: [0.1, 0.2]
-      - type: "label_flipping"
-        mode: "random"
-        params:
-          flip_ratio: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
       - type: "baseline"
         mode: "none"
         params: {}
 
-  - dataset: "Yoga"
-    classifier: "hydra"
-    random_seed: [42]
-    strategy:
-      - type: "label_flipping"
-        mode: "systematic"
+      - type: "length_reduction"
+        mode: "random"
         params:
-          confusion_matrix:
-            "0": {"0": 0.8, "1": 0.2}
-            "1": {"0": 0.1, "1": 0.9}
+          reduction_fraction: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+
+      - type: "number_instances"
+        mode: "random"
+        params:
+          reduction_ratio: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+
+      - type: "label_flipping"
+        mode: "random"
+        params:
+          flip_ratio: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        
+      - type: "feature_quality"
+        mode: "normal"
+        params:
+          noise_level: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+

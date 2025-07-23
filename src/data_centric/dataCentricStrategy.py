@@ -327,9 +327,9 @@ class LengthReductionStrategy(DataCentricStrategy):
     Length reduction strategy for truncating time series to shorter sequences.
 
     This strategy reduces the temporal length of time series by keeping only a
-    fraction of the original sequence length. This can be useful for studying
-    the impact of sequence length on model performance or for simulating scenarios
-    with shorter observation windows.
+    fraction of the original sequence length during training, then pads the reduced
+    sequences back to original length with zeros to maintain consistent shapes.
+    This simulates scenarios with partial observations or shorter measurement windows.
 
     Args:
         reduction_fraction (float): Fraction of original length to keep (between 0.0 and 1.0, exclusive).
@@ -338,7 +338,7 @@ class LengthReductionStrategy(DataCentricStrategy):
 
     Methods:
         apply(X, y) -> Tuple[np.ndarray, np.ndarray]:
-            Truncates time series to the specified fraction of original length.
+            Truncates time series to the specified fraction and pads back to original length.
 
     Raises:
         ValueError: If reduction_fraction is not between 0 and 1 (exclusive).
@@ -347,7 +347,8 @@ class LengthReductionStrategy(DataCentricStrategy):
         ```python
         strategy = LengthReductionStrategy(reduction_fraction=0.5, take_from_end=True)
         X_shortened, y_unchanged = strategy.apply(X_train, y_train)
-        # Keep only the last 50% of each time series
+        # Keep only the last 50% of each time series, pad the rest with zeros
+        # Output shape remains the same as input shape
         ```
     """
 
@@ -375,27 +376,34 @@ class LengthReductionStrategy(DataCentricStrategy):
 
     def apply(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Apply length reduction by truncating time series sequences.
+        Apply length reduction by truncating time series sequences and padding back to original length.
 
         Args:
             X (np.ndarray): Input time series data of shape (..., sequence_length).
             y (np.ndarray): Target labels (unchanged).
 
         Returns:
-            Tuple[np.ndarray, np.ndarray]: Truncated X data and original labels.
+            Tuple[np.ndarray, np.ndarray]: Modified X data with same shape as input, original labels.
         """
         self.logger.info(f"Applying LengthReductionStrategy with reduction_fraction: {self.reduction_fraction}")
         
-        series_length = X.shape[-1]
+        original_shape = X.shape
+        series_length = original_shape[-1]
         reduced_length = int(series_length * self.reduction_fraction)
         
+        # Create output array filled with zeros, same shape as input
+        X_reduced = np.zeros_like(X)
+        
         if self.take_from_end:
-            X_reduced = X[..., -reduced_length:]
+            # Keep the end portion, pad at the beginning with zeros
+            X_reduced[..., -reduced_length:] = X[..., -reduced_length:]
         else:
-            X_reduced = X[..., :reduced_length]
+            # Keep the beginning portion, pad at the end with zeros
+            X_reduced[..., :reduced_length] = X[..., :reduced_length]
         
         self.logger.info(
-            f"LengthReductionStrategy applied successfully: {reduced_length}/{series_length} timesteps kept"
+            f"LengthReductionStrategy applied successfully: {reduced_length}/{series_length} timesteps kept, "
+            f"remaining positions filled with zeros. Output shape: {X_reduced.shape}"
         )
         return X_reduced, y
 

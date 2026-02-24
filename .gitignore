@@ -8,3 +8,5 @@ results/*
 
 *.pyc
 *.csv
+
+*.log

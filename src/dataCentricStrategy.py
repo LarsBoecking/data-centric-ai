@@ -91,18 +91,31 @@ class NumberInstanceStrategy(DataCentricStrategy):
         return X_reduced, y_reduced
     
 class LengthReductionStrategy(DataCentricStrategy):
-    def __init__(self, reduction_fraction: float):
+    def __init__(self, reduction_fraction: float, take_from_end: bool = False):
         if not (0.0 < reduction_fraction <= 1.0):
             raise ValueError("reduction_fraction must be between 0 and 1 (exclusive).")
         self.reduction_fraction = reduction_fraction
+        self.take_from_end = take_from_end
         logger.info(
-            f"Initialized LengthReductionStrategy with reduction_fraction: {self.reduction_fraction}"
+            "Initialized LengthReductionStrategy with reduction_fraction: %s, take_from_end: %s",
+            self.reduction_fraction,
+            self.take_from_end,
         )
 
     def apply(self, X, y):
-        logger.info(f"Applying LengthReductionStrategy with reduction_fraction: {self.reduction_fraction}")
-        reduced_length = int(len(X) * self.reduction_fraction)
-        X_reduced = [x[:reduced_length] for x in X]
+        logger.info(
+            f"Applying LengthReductionStrategy with reduction_fraction: {self.reduction_fraction}"
+        )
+        # len(X) gives the number of samples which is not appropriate here.
+        # We need to reduce the temporal dimension of each series based on its
+        # original length (the last axis).
+        series_length = X.shape[-1]
+        reduced_length = int(series_length * self.reduction_fraction)
+        # Support numpy arrays directly for efficiency
+        if self.take_from_end:
+            X_reduced = X[..., -reduced_length:]
+        else:
+            X_reduced = X[..., :reduced_length]
         
         logger.info("LengthReductionStrategy applied successfully")
         return X_reduced, y

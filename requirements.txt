@@ -6,3 +6,5 @@ aeon
 numpy 
 pandas 
 scikit-learn
+
+tqdm

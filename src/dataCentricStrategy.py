@@ -2,8 +2,6 @@ import numpy as np
 from typing import Any, Dict
 from src.utils import logger
 
-
-### Strategy Base and Implementations ###
 class DataCentricStrategy:
     def apply(self, X, y):
         raise NotImplementedError
@@ -16,7 +14,7 @@ class DataCentricStrategy:
             ("label_flipping", "systematic"): SystematicLabelFlipping,
             ("number_instances", "random"): NumberInstanceStrategy,
             ("length_reduction", "random"): LengthReductionStrategy,
-            ("baseline", None): BaselineStrategy,
+            ("baseline", "none"): BaselineStrategy,
         }
         key = (conf["type"], conf.get("mode"))
         StrategyClass = strategy_registry.get(key)
@@ -59,8 +57,6 @@ class SystematicLabelFlipping(DataCentricStrategy):
     def apply(self, X, y):
         logger.info("Applying SystematicLabelFlipping")
         y_flipped = y.copy()
-        classes = list(set(y))
-        class_map = {str(k): str(k) for k in classes}  # fallback to identity
 
         for idx, label in enumerate(y):
             label_str = str(label)

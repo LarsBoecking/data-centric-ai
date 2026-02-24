@@ -3,7 +3,6 @@ import logging
 from itertools import product
 import yaml
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
@@ -13,7 +12,6 @@ RESULTS_DIR = "results"
 SUMMARY_FILE = os.path.join(RESULTS_DIR, "summary.csv")
 
 
-### Utility to Expand Configurations ###
 def load_and_expand_yaml(path: str):
     logger.info(f"Loading and expanding YAML configuration from: {path}")
     with open(path, "r") as f:

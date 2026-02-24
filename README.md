@@ -39,7 +39,6 @@ experiment:
         mode: "random"
         params:
           reduction_fraction: [0.1, 0.3]
-          take_from_end: [false, true]
       - type: "number_instances"
         mode: "random"
         params:
@@ -109,7 +108,7 @@ for folder, result in result_handler.iter_results():
 
 - ✅ **BaselineStrategy**: No adaptation (control condition)
   - Parameters: none
-  - 
+  
 - ✅ **RandomLabelFlipping**: Randomly flip a percentage of training labels
   - Parameters: `flip_ratio` (0.0-1.0)
   

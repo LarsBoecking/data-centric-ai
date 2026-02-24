@@ -140,7 +140,9 @@ class Experiment:
         self.X_train, self.y_train = self.strategy.apply(
             self.X_train_raw, self.y_train_raw
         )
-        self.X_test, self.y_test = self.strategy.apply(self.X_test_raw, self.y_test_raw)
+        
+        #  Keep test data unchanged
+        self.X_test, self.y_test = self.X_test_raw, self.y_test_raw  
 
     def run(self):
         if self.skip:

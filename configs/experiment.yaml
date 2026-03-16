@@ -8,23 +8,23 @@ experiment:
         mode: "none"
         params: {}
 
-      - type: "length_reduction"
-        mode: "random"
+      - type: "temporal_downsampling"
+        mode: "uniform"
         params:
-          reduction_fraction: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+          p: [0.1, 0.3, 0.5, 0.7, 0.9]
 
-      - type: "number_instances"
-        mode: "random"
+      - type: "difficulty_selection"
+        mode: "distance"
         params:
-          reduction_ratio: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+          p: [0.1, 0.3, 0.5, 0.7, 0.9]
 
-      - type: "label_flipping"
-        mode: "random"
+      - type: "label_quality"
+        mode: "flip"
         params:
-          flip_ratio: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+          p: [0.1, 0.3, 0.5, 0.7, 0.9, 1.0]
         
       - type: "feature_quality"
-        mode: "normal"
+        mode: "gaussian"
         params:
-          noise_level: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+          p: [0.1, 0.3, 0.5, 0.7, 0.9, 1.0]
 

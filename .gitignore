@@ -14,3 +14,4 @@ results/*
 *.pdf
 
 concept/*
+.vscode/settings.json

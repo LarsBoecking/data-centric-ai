@@ -1,6 +1,12 @@
 .venv/*
 
 Univariate_ts/*
+.dcai_env/*
+/.dcai_env
+dcai_env/*
+
+112UCRFolds/*
+/112UCRFolds/*
 
 .DS_Store
 
@@ -16,3 +22,8 @@ figures/*
 
 concept/*
 .vscode/settings.json
+submit_job.sh
+
+# SLURM output files
+*.o[0-9]*
+*.e[0-9]*

@@ -25,3 +25,11 @@ pytest-cov
 
 # mixed effect analysis
 statsmodels
+tsml_eval
+pyYAML
+torch==2.6.0
+aeon==1.0.0
+numpy 
+pandas 
+scikit-learn
+sktime

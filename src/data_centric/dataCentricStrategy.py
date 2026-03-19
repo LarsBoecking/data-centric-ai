@@ -497,16 +497,31 @@ class TemporalDownsamplingStrategy(DataCentricStrategy):
             raise ValueError(f"Unknown temporal_downsampling mode: {self.mode}")
 
     def _apply_uniform_downsampling(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """Primary variant: Uniform downsampling with s(p) = 1 + floor(15p)."""
+        """Primary variant: Drop p fraction of timesteps by keeping every ceil(1/(1-p))-th timestep, then forward-fill.
+        
+        Stride formula: s = int(1/(1-p)) ensures that higher p = more aggressive degradation:
+        - p=0.1: s=1 (keep ~100%, drop ~10%)
+        - p=0.5: s=2 (keep 50%, drop 50%)
+        - p=0.9: s=10 (keep 10%, drop 90%)
+        
+        Downsamples by keeping every s-th timestep, then reconstructs to original
+        length using forward-fill to maintain shape compatibility with unmodified test data.
+        """
         if self.p == 0:
             return X.copy(), y.copy()
         
-        s = 1 + int(np.floor(self.p * 15))
-        # Downsample the last dimension (temporal)
+        # Keep every ceil(1/(1-p))-th timestep, effectively dropping p fraction
+        s = int(1.0 / (1.0 - self.p))
         X_down = X[..., ::s]
         
-        self.logger.info(f"TemporalDownsamplingStrategy.uniform applied: {X.shape[-1]} → {X_down.shape[-1]} timesteps")
-        return X_down, y.copy()
+        # Reconstruct to original shape using forward-fill
+        original_length = X.shape[-1]
+        indices = np.arange(0, original_length, s)
+        indices_filled = np.minimum(np.searchsorted(indices, np.arange(original_length), side='right') - 1, len(indices) - 1)
+        X_reconstructed = X_down[..., indices_filled]
+        
+        self.logger.info(f"TemporalDownsamplingStrategy.uniform applied: kept every {s}-th timestep then forward-filled (p={self.p})")
+        return X_reconstructed, y.copy()
 
     def _apply_truncation(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """TODO: Truncate sequences to (1-p)·T length."""

@@ -1,5 +1,6 @@
 import os
 import json
+import shutil
 import numpy as np
 import pandas as pd
 from typing import Any, Dict
@@ -72,7 +73,7 @@ class Experiment:
         experiment.run()
         ```
     """
-    def __init__(self, config: Dict[str, Any], base_path: str, results_root: str, summary_file: str = "summary.csv"):
+    def __init__(self, config: Dict[str, Any], base_path: str, results_root: str, summary_file: str = "summary.csv", force_rerun: bool = False):
         """
         Initialize the Experiment with configuration and paths.
 
@@ -84,6 +85,7 @@ class Experiment:
             base_path (str): Path to UCR dataset directory
             results_root (str): Root directory for experiment outputs  
             summary_file (str, optional): Summary CSV filename. Defaults to "summary.csv"
+            force_rerun (bool, optional): If True, bypass deduplication check and rerun experiment. Defaults to False
 
         Raises:
             FileNotFoundError: If dataset cannot be found at base_path
@@ -108,7 +110,31 @@ class Experiment:
         self.classifier = BakeoffClassifier(clf_name, random_state=self.random_seed)
         self.strategy = DataCentricStrategy.from_config(strategy_conf)
 
-        if os.path.exists(summary_file):
+        # Handle cleanup of old results if force_rerun is True
+        if force_rerun and os.path.exists(summary_file):
+            summary_df = pd.read_csv(summary_file)
+            match = (
+                (summary_df["dataset"] == ds_name)
+                & (summary_df["classifier"] == clf_name)
+                & (summary_df["random_seed"] == self.random_seed)
+                & (summary_df["strategy"] == strategy_conf["type"])
+                & (summary_df["strategy_mode"] == strategy_conf.get("mode"))
+                & (summary_df["strategy_params"] == json.dumps(strategy_conf["params"]))
+            )
+            if match.any():
+                # Delete old result folders
+                old_folders = summary_df[match]["folder"].tolist()
+                for folder in old_folders:
+                    if os.path.exists(folder):
+                        shutil.rmtree(folder)
+                        self.logger.info(f"Deleted old result folder: {folder}")
+                
+                # Remove matching rows from CSV
+                summary_df = summary_df[~match]
+                summary_df.to_csv(summary_file, index=False)
+                self.logger.info(f"Removed {match.sum()} old entries from summary CSV")
+
+        if not force_rerun and os.path.exists(summary_file):
             summary_df = pd.read_csv(summary_file)
             match = (
                 (summary_df["dataset"] == ds_name)

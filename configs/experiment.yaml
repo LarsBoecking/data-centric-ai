@@ -1,6 +1,6 @@
 experiment:
-  - dataset: ["Beef", "GunPoint", "Yoga"]
-    classifier: ["mini-rocket", "catch22"]
+  - dataset: ["Beef", "GunPoint", "Yoga", "BeetleFly", "Blink", "ChlorineConcentration", "Earthquakes", "ElectricDeviceDetection", "Handwriting", "JapaneseVowels", "KeplerLightCurves"]
+    classifier: ["mini-rocket", "catch22", "boss", "hydra"]
     random_seed: [0,1,2]
 
     strategy:
@@ -8,23 +8,23 @@ experiment:
         mode: "none"
         params: {}
 
-      - type: "temporal_downsampling"
-        mode: "uniform"
-        params:
-          p: [0.1, 0.3, 0.5, 0.7, 0.9]
+      # - type: "temporal_downsampling"
+      #   mode: "uniform"
+      #   params:
+      #     p: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
-      - type: "difficulty_selection"
-        mode: "distance"
-        params:
-          p: [0.1, 0.3, 0.5, 0.7, 0.9]
+      # - type: "difficulty_selection"
+      #   mode: "distance"
+      #   params:
+      #     p: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
       - type: "label_quality"
         mode: "flip"
         params:
-          p: [0.1, 0.3, 0.5, 0.7, 0.9, 1.0]
+          p: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
         
-      - type: "feature_quality"
-        mode: "gaussian"
-        params:
-          p: [0.1, 0.3, 0.5, 0.7, 0.9, 1.0]
+      # - type: "feature_quality"
+      #   mode: "gaussian"
+      #   params:
+      #     p: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 

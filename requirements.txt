@@ -8,6 +8,7 @@ tqdm
 # time series processing
 tsml_eval
 aeon
+tsfresh
 
 # classification models
 torch
@@ -21,3 +22,6 @@ ipywidgets
 # testing
 pytest
 pytest-cov
+
+# mixed effect analysis
+statsmodels

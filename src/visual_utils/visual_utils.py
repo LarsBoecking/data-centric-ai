@@ -57,21 +57,17 @@ def plot_data(strategy_config: Dict, X_train_raw: np.ndarray, y_train_raw: np.nd
         y_train_raw (np.ndarray): Raw training labels of shape (n_samples,)
         title (str): Title for the entire figure
     """
-    # Apply strategy to get preprocessed data
     strategy = DataCentricStrategy.from_config(strategy_config)
     X_preprocessed, y_preprocessed = strategy.apply(X_train_raw, y_train_raw)
     
-    # Get unique classes from raw labels (ground truth)
     class_labels = np.unique(y_train_raw)
     n_classes = len(class_labels)
     
-    # Layout: max 5 columns, min number of classes
     n_cols = min(5, n_classes)
-    n_rows = 2  # First row: raw, second row: preprocessed
+    n_rows = 2  
     
     fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 3, n_rows * 4), sharex=True, sharey=True)
     
-    # Ensure axs is 2D even for single column/row
     if n_cols == 1 and n_rows > 1:
         axs = axs.reshape(n_rows, 1)
     elif n_rows == 1 and n_cols > 1:
@@ -79,71 +75,52 @@ def plot_data(strategy_config: Dict, X_train_raw: np.ndarray, y_train_raw: np.nd
     elif n_cols == 1 and n_rows == 1:
         axs = np.array([[axs]])
     
-    # Get color palette
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
     
-    # Calculate x-axis limits based on actual data range
-    raw_max_len = X_train_raw.shape[-1]  # Last dimension is temporal
+    raw_max_len = X_train_raw.shape[-1]  
     preprocessed_max_len = X_preprocessed.shape[-1]
     x_max = max(raw_max_len, preprocessed_max_len)
     
-    # Plot raw data (first row)
     for col_idx, cls in enumerate(class_labels[:n_cols]):
         ax = axs[0, col_idx]
         class_indices = np.where(y_train_raw == cls)[0][:5]
         samples = X_train_raw[class_indices]
         
-        # Handle 3D arrays (n_samples, n_channels, n_timesteps)
         if samples.ndim > 2:
             samples = samples.squeeze(1) if samples.shape[1] == 1 else samples.reshape(samples.shape[0], -1)
         
         for i, sample in enumerate(samples):
             gt_label = y_train_raw[class_indices[i]]
             color = colors[int(gt_label) % len(colors)]
-            ax.plot(sample, color=color, alpha=0.7)
+            ax.plot(sample, color=color)
         
-        # Title only in top row
         ax.set_title(f"Class {cls}")
-        
-        # Y-axis label only in first column
         if col_idx == 0:
             ax.set_ylabel("Raw", fontweight='bold')
-        
-        # Hide x-axis labels in top row
         ax.tick_params(labelbottom=False)
-        
-        ax.grid(True, alpha=0.3)
     
-    # Plot preprocessed data (second row)
     for col_idx, cls in enumerate(class_labels[:n_cols]):
         ax = axs[1, col_idx]
         class_indices = np.where(y_preprocessed == cls)[0][:5]
         samples = X_preprocessed[class_indices]
         
-        # Handle 3D arrays
         if samples.ndim > 2:
             samples = samples.squeeze(1) if samples.shape[1] == 1 else samples.reshape(samples.shape[0], -1)
         
         for i, sample in enumerate(samples):
             gt_label = y_train_raw[class_indices[i]]
             color = colors[int(gt_label) % len(colors)]
-            ax.plot(sample, color=color, alpha=0.7)
+            ax.plot(sample, color=color)
         
-        # Y-axis label only in first column
         if col_idx == 0:
             ax.set_ylabel("Preprocessed", fontweight='bold')
-        
-        ax.grid(True, alpha=0.3)
-    
-    # Hide unused columns
+
     for col_idx in range(n_classes, n_cols):
         axs[0, col_idx].set_visible(False)
         axs[1, col_idx].set_visible(False)
     
-    # Set x-axis limits based on actual data range
     axs[0, 0].set_xlim(0, x_max)
     
-    # Add title at the top
     fig.suptitle(title, fontsize=14, fontweight='bold', y=0.995)
     plt.tight_layout(rect=[0, 0, 1, 0.98])
     plt.show()
@@ -177,11 +154,19 @@ def plot_accuracy_vs_strategy_param(
     Returns:
         Optional[plt.Figure]: Figure object if prepare_save_plot=True, else None
     """
-    # Get subset for this strategy
     subset_results = get_strategy_subset(summary_df, strategy_type, strategy_mode)
     
     fig, ax = plt.subplots()
     flip_ratios = sorted([x for x in subset_results[strategy_params_compare].unique() if x is not None])
+    
+    if not flip_ratios:
+        print(f"No data available for {strategy_type} - {strategy_mode}")
+        ax.text(0.5, 0.5, 'No data available', ha='center', va='center')
+        if prepare_save_plot:
+            return fig
+        else:
+            plt.show()
+            return None
 
     for dataset in dataset_names:
         if not datasets_selected.get(dataset, True):
@@ -217,7 +202,6 @@ def plot_accuracy_vs_strategy_param(
     ax.set_xlabel(f"{strategy_params_compare.capitalize()}")
     ax.set_ylabel(f"{classifier} Accuracy")
     
-    # Build title with strategy info
     ax.set_title(f"{classifier} Accuracy vs. {strategy_params_compare.capitalize()} ({strategy_type} - {strategy_mode})")
     
     ax.set_xlim(min(flip_ratios), max(flip_ratios))
@@ -259,15 +243,20 @@ def plot_accuracy_comparison(
     Returns:
         Optional[plt.Figure]: Figure object if prepare_save_plot=True, else None
     """
-    # Get subset for this strategy
     subset_results = get_strategy_subset(summary_df, strategy_type, strategy_mode)
 
     subset = subset_results[
         subset_results[strategy_params_compare] == strategy_params_value
     ]
     if subset.empty:
-        print(f"No results found for {strategy_params_compare}={strategy_params_value}.")
-        return
+        print(f"No results found for {strategy_params_compare}={strategy_params_value} in {strategy_type} - {strategy_mode}.")
+        fig, ax = plt.subplots(figsize=(6, 6))
+        ax.text(0.5, 0.5, 'No data available', ha='center', va='center')
+        if prepare_save_plot:
+            return fig
+        else:
+            plt.show()
+            return None
 
     subset = subset[subset["classifier"].isin([classifier1, classifier2])]
     if subset.empty or not all(
@@ -310,10 +299,9 @@ def plot_accuracy_comparison(
     ax.set_xlabel(f"{classifier1} Accuracy")
     ax.set_ylabel(f"{classifier2} Accuracy")
     
-    # Build title with strategy info
     ax.set_title(f"Accuracy Comparison: {classifier1} vs {classifier2}\n({strategy_type} - {strategy_mode}, {strategy_params_compare}={strategy_params_value})")
     
-    ax.axline((0, 0), slope=1, color="grey", linestyle="--", alpha=0.5, label="y=x")
+    ax.axline((0, 0), slope=1, color="grey", linestyle="--", alpha=0.5, label="")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.legend()
@@ -353,11 +341,19 @@ def plot_accuracy_trajectory(
     Returns:
         Optional[plt.Figure]: Figure object if prepare_save_plot=True, else None
     """
-    # Get subset for this strategy
     subset_results = get_strategy_subset(summary_df, strategy_type, strategy_mode)
     
     fig, ax = plt.subplots(figsize=(6, 6))
     strategy_params_available = sorted([x for x in subset_results[strategy_params_compare].unique() if x is not None])
+    
+    if not strategy_params_available:
+        print(f"No data available for {strategy_type} - {strategy_mode}")
+        ax.text(0.5, 0.5, 'No data available', ha='center', va='center')
+        if prepare_save_plot:
+            return fig
+        else:
+            plt.show()
+            return None
 
     for dataset in dataset_names:
         if not datasets_selected.get(dataset, True):
@@ -414,7 +410,6 @@ def plot_accuracy_trajectory(
     ax.set_xlabel(f"{classifier1} Accuracy")
     ax.set_ylabel(f"{classifier2} Accuracy")
     
-    # Build title with strategy info
     title_base = f"Trajectory: {classifier1} vs {classifier2}\n({strategy_type} - {strategy_mode})"
     
     if strategy_params_available:
@@ -423,7 +418,7 @@ def plot_accuracy_trajectory(
         )
     else:
         ax.set_title(title_base)
-    ax.axline((0, 0), slope=1, color="grey", linestyle="--", alpha=0.5, label="y=x")
+    ax.axline((0, 0), slope=1, color="grey", linestyle="--", alpha=0.5, label="")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.legend()
@@ -431,3 +426,183 @@ def plot_accuracy_trajectory(
 
     if prepare_save_plot:
         return fig
+
+def create_dependent_dropdowns(summary_df: pd.DataFrame):
+    """Create dependent type and mode dropdowns for interactive widgets.
+    
+    Returns dropdowns where mode options update based on selected type.
+    
+    Args:
+        summary_df (pd.DataFrame): Full results dataframe
+    
+    Returns:
+        Tuple of (type_dropdown, mode_dropdown)
+    """
+    import ipywidgets as widgets
+    
+    available_types = sorted(summary_df['type'].unique())
+    available_modes_by_type = {
+        t: sorted(summary_df[summary_df['type'] == t]['mode'].unique())
+        for t in available_types
+    }
+    
+    type_dd = widgets.Dropdown(
+        options=available_types,
+        value=available_types[0] if len(available_types) > 0 else None,
+        description='Type',
+    )
+    
+    mode_dd = widgets.Dropdown(
+        options=available_modes_by_type[available_types[0]] if len(available_types) > 0 else [],
+        description='Mode',
+    )
+    
+    def on_type_change(change):
+        mode_dd.options = available_modes_by_type[change['new']]
+        if mode_dd.options:
+            mode_dd.value = mode_dd.options[0]
+    
+    type_dd.observe(on_type_change, names='value')
+    
+    return type_dd, mode_dd
+
+def batch_export_accuracy_vs_param(
+    summary_df: pd.DataFrame,
+    strategy_type: str,
+    strategy_mode: str,
+    strategy_params_compare: str,
+    dataset_names: List[str],
+    output_path: str,
+    dataset_filter: Dict[str, bool] = None,
+) -> None:
+    """Batch export accuracy vs parameter plots for all classifiers.
+    
+    Args:
+        summary_df (pd.DataFrame): Full results dataframe
+        strategy_type (str): Strategy type to export
+        strategy_mode (str): Strategy mode to export
+        strategy_params_compare (str): Parameter to compare
+        dataset_names (List[str]): Available datasets
+        output_path (str): Directory to save PDFs
+        dataset_filter (Dict[str, bool]): Filter for which datasets to include
+    """
+    if dataset_filter is None:
+        dataset_filter = {name: True for name in dataset_names}
+    
+    os.makedirs(output_path, exist_ok=True)
+    
+    for classifier in sorted(summary_df["classifier"].unique()):
+        fig = plot_accuracy_vs_strategy_param(
+            summary_df,
+            strategy_type=strategy_type,
+            strategy_mode=strategy_mode,
+            strategy_params_compare=strategy_params_compare,
+            classifier=classifier,
+            dataset_names=dataset_names,
+            prepare_save_plot=True,
+            **dataset_filter,
+        )
+        
+        if fig is not None:
+            fig.savefig(
+                os.path.join(output_path, f"accuracy_vs_{strategy_params_compare}_{classifier}.pdf"),
+                dpi=300,
+                bbox_inches='tight',
+            )
+            plt.close(fig)
+
+def batch_export_comparison(
+    summary_df: pd.DataFrame,
+    strategy_type: str,
+    strategy_mode: str,
+    strategy_params_compare: str,
+    dataset_names: List[str],
+    output_path: str,
+) -> None:
+    """Batch export classifier comparison plots for all parameter values.
+    
+    Args:
+        summary_df (pd.DataFrame): Full results dataframe
+        strategy_type (str): Strategy type to export
+        strategy_mode (str): Strategy mode to export
+        strategy_params_compare (str): Parameter to sweep
+        dataset_names (List[str]): Available datasets
+        output_path (str): Directory to save PDFs
+    """
+    os.makedirs(output_path, exist_ok=True)
+    
+    classifiers = sorted(summary_df["classifier"].unique())
+    param_values = sorted([x for x in summary_df[strategy_params_compare].unique() if x is not None])
+    
+    for classifier1, classifier2 in zip(classifiers[:-1], classifiers[1:]):
+        if classifier1 == classifier2:
+            continue
+        
+        for param_value in param_values:
+            fig = plot_accuracy_comparison(
+                summary_df,
+                strategy_type=strategy_type,
+                strategy_mode=strategy_mode,
+                strategy_params_compare=strategy_params_compare,
+                strategy_params_value=param_value,
+                classifier1=classifier1,
+                classifier2=classifier2,
+                dataset_names=dataset_names,
+                prepare_save_plot=True,
+                **{name: True for name in dataset_names},
+            )
+            
+            if fig is not None:
+                fig.savefig(
+                    os.path.join(output_path, f"comparison_{classifier1}_vs_{classifier2}_{strategy_params_compare}_{param_value:.2f}.pdf"),
+                    dpi=300,
+                    bbox_inches='tight',
+                )
+                plt.close(fig)
+
+def batch_export_trajectory(
+    summary_df: pd.DataFrame,
+    strategy_type: str,
+    strategy_mode: str,
+    strategy_params_compare: str,
+    dataset_names: List[str],
+    output_path: str,
+) -> None:
+    """Batch export trajectory plots for all classifier pairs and datasets.
+    
+    Args:
+        summary_df (pd.DataFrame): Full results dataframe
+        strategy_type (str): Strategy type to export
+        strategy_mode (str): Strategy mode to export
+        strategy_params_compare (str): Parameter to sweep
+        dataset_names (List[str]): Available datasets
+        output_path (str): Directory to save PDFs
+    """
+    os.makedirs(output_path, exist_ok=True)
+    
+    classifiers = sorted(summary_df["classifier"].unique())
+    
+    for classifier1, classifier2 in zip(classifiers[:-1], classifiers[1:]):
+        if classifier1 == classifier2:
+            continue
+        
+        for data_set in dataset_names:
+            fig = plot_accuracy_trajectory(
+                summary_df,
+                strategy_type=strategy_type,
+                strategy_mode=strategy_mode,
+                strategy_params_compare=strategy_params_compare,
+                classifier1=classifier1,
+                classifier2=classifier2,
+                dataset_names=dataset_names,
+                prepare_save_plot=True,
+                **{name: False if name != data_set else True for name in dataset_names},
+            )
+            
+            if fig is not None:
+                fig.savefig(
+                    os.path.join(output_path, f"trajectory_{classifier1}_vs_{classifier2}_{data_set}.pdf"),
+                    dpi=300,
+                    bbox_inches='tight',
+                )
+                plt.close(fig)

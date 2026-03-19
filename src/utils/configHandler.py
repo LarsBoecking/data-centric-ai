@@ -8,31 +8,25 @@ from ..utils.logger import get_logger
 
 
 class ConfigHandler:
-    def __init__(self, paths_yaml_path="configs/paths.yaml"):
+    def __init__(
+        self,
+        datasets_path="Univariate_ts",
+        results_dir="results",
+        summary_file="summary.csv",
+        config_path="configs/experiment.yaml",
+        data_url="http://www.timeseriesclassification.com/aeon-toolkit/Archives/Univariate2018_ts.zip",
+        data_zip="Univariate2018_ts.zip",
+    ):
         self.logger = get_logger(__name__)
-        self.logger.info(f"Initializing ConfigHandler with paths_yaml_path: {paths_yaml_path}")
+        self.logger.info("Initializing ConfigHandler")
         
-        try:
-            with open(paths_yaml_path, "r") as f:
-                self.paths_config = yaml.safe_load(f)
-            self.logger.info("Successfully loaded paths configuration from YAML file")
-        except FileNotFoundError:
-            self.logger.error(f"Paths YAML configuration file not found at path: {paths_yaml_path}")
-            raise
-        except yaml.YAMLError as e:
-            self.logger.error(f"Error parsing paths YAML file: {e}")
-            raise
-        except Exception as e:
-            self.logger.error(f"Unexpected error loading paths YAML file: {e}")
-            raise
-            
-        # Load path configurations
-        self.RESULTS_DIR = self.paths_config["RESULTS_DIR"]
-        self.SUMMARY_FILE = os.path.join(self.RESULTS_DIR, self.paths_config["SUMMARY_FILE"])
-        self.DATA_URL = self.paths_config["DATA_URL"]
-        self.DATA_ZIP = self.paths_config["DATA_ZIP"]
-        self.CONFIG_PATH = os.path.join("configs", self.paths_config["CONFIG_PATH"])
-        self.DATASETS_PATH = self.paths_config["DATASETS_PATH"]
+        # Set path configurations from parameters
+        self.DATASETS_PATH = datasets_path
+        self.RESULTS_DIR = results_dir
+        self.SUMMARY_FILE = os.path.join(results_dir, summary_file)
+        self.CONFIG_PATH = config_path
+        self.DATA_URL = data_url
+        self.DATA_ZIP = data_zip
         
         # Create results directory
         os.makedirs(self.RESULTS_DIR, exist_ok=True)

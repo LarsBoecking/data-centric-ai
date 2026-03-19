@@ -1,6 +1,12 @@
 .venv/*
 
 Univariate_ts/*
+.dcai_env/*
+/.dcai_env
+dcai_env/*
+
+112UCRFolds/*
+/112UCRFolds/*
 
 .DS_Store
 
@@ -15,3 +21,4 @@ results/*
 
 concept/*
 .vscode/settings.json
+submit_job.sh

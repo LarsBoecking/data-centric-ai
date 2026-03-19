@@ -53,12 +53,16 @@ if __name__ == "__main__":
 
     with logging_redirect_tqdm():
         for config in tqdm(configs, desc="Experiments", unit="config"):
-            experiment = Experiment(
-                config,
-                base_path=_config_handler.DATASETS_PATH,
-                results_root=_config_handler.RESULTS_DIR,
-                summary_file=_config_handler.SUMMARY_FILE,
-                force_rerun=args.force_rerun,
-            )
-            experiment.run()
+            try:
+                experiment = Experiment(
+                    config,
+                    base_path=_config_handler.DATASETS_PATH,
+                    results_root=_config_handler.RESULTS_DIR,
+                    summary_file=_config_handler.SUMMARY_FILE,
+                    force_rerun=args.force_rerun,
+                )
+                experiment.run()
+            except Exception as e:
+                _config_handler.logger.error(f"Experiment failed with config {config}: {e}", exc_info=True)
+                continue
         _config_handler.logger.info("All experiments completed")

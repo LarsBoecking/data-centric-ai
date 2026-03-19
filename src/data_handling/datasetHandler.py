@@ -1,6 +1,6 @@
 from aeon.datasets import load_classification
 from ..utils.logger import get_logger
-
+import numpy as np
 
 class UCRDataset:
     def __init__(self, name: str, path: str):
@@ -18,4 +18,4 @@ class UCRDataset:
             name=self.name, split="test", return_metadata=False, extract_path=self.path
         )
         self.logger.info(f"Dataset {self.name} loaded successfully")
-        return X_train, y_train, X_test, y_test, meta
+        return np.array(X_train), np.array(y_train), np.array(X_test), np.array(y_test), meta
